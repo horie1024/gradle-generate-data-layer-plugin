@@ -20,6 +20,8 @@ open class GenerateDataLayerPluginProperties : DefaultTask() {
 
         val swagger: Swagger = SwaggerParser().read(extensions.swagger_json_path)
 
+        val pkgName = project
+
         DataLayerGenerator(swagger).apply {
             dataClassFilePath = extensions.data_layer_path
             serviceClassFilePath = extensions.data_layer_path

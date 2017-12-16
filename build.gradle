@@ -2,14 +2,16 @@ group 'com.horie1024'
 version '0.0.1'
 
 buildscript {
-    ext.kotlin_version = '1.2.0'
+    ext.kotlin_version = '1.2.10'
+    ext.kotlinpoet_version = '0.6.0'
+    ext.swagger_parser_version = '1.0.31'
 
     repositories {
         mavenCentral()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath files('build/libs/generate-data-layer-0.0.1.jar')
+        classpath files('build/libs/gradle-generate-data-layer-plugin-0.0.1.jar')
     }
 }
 
@@ -36,29 +38,26 @@ dependencies {
     compileOnly gradleApi()
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation ('com.squareup:kotlinpoet:0.6.0') {
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    implementation("com.squareup:kotlinpoet:$kotlinpoet_version") {
         exclude module: 'kotlin-stdlib-jre7'
         exclude module: 'kotlin-reflect'
     }
-    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
-    implementation 'io.reactivex.rxjava2:rxjava:2.1.6'
-    implementation 'io.swagger:swagger-parser:1.0.31'
+    implementation "io.swagger:swagger-parser:$swagger_parser_version"
 
     testCompileOnly gradleTestKit()
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.assertj:assertj-core:3.6.2'
 
-    extraLibs ('com.squareup:kotlinpoet:0.6.0') {
+    extraLibs("com.squareup:kotlinpoet:$kotlinpoet_version") {
         exclude module: 'kotlin-stdlib-jre7'
         exclude module: 'kotlin-reflect'
     }
-    extraLibs 'com.squareup.retrofit2:retrofit:2.3.0'
-    extraLibs 'io.reactivex.rxjava2:rxjava:2.1.6'
-    extraLibs 'io.swagger:swagger-parser:1.0.31'
+    extraLibs "io.swagger:swagger-parser:$swagger_parser_version"
 }
 
 jar {
-    //zip64 true
+    zip64 true
     from {
         configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) }
     }

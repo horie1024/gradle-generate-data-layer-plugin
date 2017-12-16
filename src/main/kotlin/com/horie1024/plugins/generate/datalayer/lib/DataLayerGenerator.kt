@@ -10,12 +10,7 @@ import java.io.File
 /**
  * Generate files related to the data layer
  */
-class DataLayerGenerator(private val swagger: Swagger) : Generator {
-
-    var dataClassPackageName: String = ""
-    var dataClassFilePath: String? = null
-    var serviceClassPackageName: String = ""
-    var serviceClassFilePath: String? = null
+class DataLayerGenerator(swagger: Swagger) : Generator(swagger) {
 
     /**
      * Generate data class
@@ -66,7 +61,9 @@ class DataLayerGenerator(private val swagger: Swagger) : Generator {
             }
 
             FileSpec.builder(dataClassPackageName, typeName)
-                    .addType(typeSpecBuilder.primaryConstructor(funSpecBuilder.build()).build())
+                    .addType(typeSpecBuilder.primaryConstructor(
+                            funSpecBuilder.build())
+                            .build())
                     .build()
                     .let {
                         if (dataClassFilePath != null) it.writeTo(File(dataClassFilePath)) else it.writeTo(System.out)
@@ -89,26 +86,24 @@ class DataLayerGenerator(private val swagger: Swagger) : Generator {
 
         tagList.forEach {
             val (tag, paths) = it
-            val funList = mutableListOf<FunSpec.Builder>()
+            val funList = mutableListOf<FunSpec>()
 
             paths.forEach { path, operationMap ->
                 operationMap.forEach {
                     val (method, operation) = it
 
-                    val returnType = operation.getReturnType()
-
                     FunSpec.builder(operation.operationId)
                             .addModifiers(KModifier.ABSTRACT)
-                            .buildHttpMethodAnnotation(method, path, returnType)
+                            .buildHttpMethodAnnotation(method, path, operation.getReturnType())
                             .buildParameters(operation.parameters)
-                            .let { funList.add(it) }
+                            .let { funList.add(it.build()) }
                 }
             }
 
             FileSpec.builder(serviceClassPackageName, "${tag.capitalize()}Service")
                     .addType(TypeSpec
                             .interfaceBuilder("${tag.capitalize()}Service")
-                            .apply { funList.forEach { addFunction(it.build()) } }
+                            .apply { funList.forEach { addFunction(it) } }
                             .build())
                     .build()
                     .let {

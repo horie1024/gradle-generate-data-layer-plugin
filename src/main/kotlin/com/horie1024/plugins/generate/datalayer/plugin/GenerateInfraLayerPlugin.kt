@@ -10,9 +10,7 @@ class GenerateInfraLayerPlugin : Plugin<Project> {
         project ?: return
 
         with(project) {
-
             extensions.create("generate_data_layer", Options::class.java)
-
             tasks.create("generateDataLayer", GenerateDataLayerPluginProperties::class.java).let { tasks.add(it) }
         }
     }
